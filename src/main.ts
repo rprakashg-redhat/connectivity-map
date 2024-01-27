@@ -35,7 +35,8 @@ export async function run(): Promise<void> {
     mapCmdArgs.push("--save-to-file=true");
 
     // set output file
-    mapCmdArgs.push(`--output-file=${temp}/connlist.dot`);
+    mapCmdArgs.push("--output-file");
+    mapCmdArgs.push(`${temp}/connlist.dot`);
 
     let result = await Command.execute(roxctl, mapCmdArgs);
     if (result.exitCode !== 0) {

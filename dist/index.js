@@ -34995,7 +34995,8 @@ async function run() {
     // save to file
     mapCmdArgs.push("--save-to-file=true");
     // set output file
-    mapCmdArgs.push(`--output-file=${temp}/connlist.dot`);
+    mapCmdArgs.push("--output-file");
+    mapCmdArgs.push(`${temp}/connlist.dot`);
     let result = await Command.execute(roxctl, mapCmdArgs);
     if (result.exitCode !== 0) {
         core.setFailed(result.error);
