@@ -1,7 +1,6 @@
 import * as core from "@actions/core";
 import * as io from "@actions/io";
 import * as uuidV4 from "uuid/v4";
-import * as fs from "mz/fs";
 
 import { Inputs } from "./generated/inputs-outputs";
 import { Command } from "./command";
@@ -11,8 +10,6 @@ import { UploadArtifact } from "./uploadArtifact";
 
 export async function run(): Promise<void> {
     const runnerOS = process.env.RUNNER_OS || process.platform;
-    const temp = process.env.RUNNER_TEMP;
-
     const manifestDir = core.getInput(Inputs.MANIFESTS_DIR, { required: true });
 
     let roxctl = await io.which("roxctl", false);
@@ -38,18 +35,13 @@ export async function run(): Promise<void> {
 
     // set output file
     mapCmdArgs.push("--output-file");
-    mapCmdArgs.push(`${temp}/connlist.dot`);
+    mapCmdArgs.push("connlist.dot");
 
     let result = await Command.execute(roxctl, mapCmdArgs);
     if (result.exitCode !== 0) {
         core.setFailed(result.error);
     }
-    if (await fs.exists(`${temp}/connlist.dot`)) {
-        core.debug("Dot file was created successfully");
-    }
-    else {
-        core.debug("Dot file was not created");
-    }
+
     let graphViz = await io.which("dot", false);
     if (graphViz === "") {
         core.debug("Graphviz not found, installing");
@@ -65,8 +57,7 @@ export async function run(): Promise<void> {
     const dotCmdArgs = [
         "-Tpng",
     ];
-
-    dotCmdArgs.push(`${temp}/connlist.dot > ${temp}/connlist.png`);
+    dotCmdArgs.push("connlist.dot > connlist.png");
     result = await Command.execute(graphViz, dotCmdArgs);
     if (result.exitCode !== 0) {
         core.setFailed(result.error);
@@ -74,6 +65,6 @@ export async function run(): Promise<void> {
 
     // upload both dot file and png file as artifacts
     const artifactName = uuidV4();
-    await UploadArtifact.upload(artifactName, [ `${temp}/connlist.dot`, `${temp}/connlist.png` ]);
+    await UploadArtifact.upload(artifactName, [ "connlist.dot", "connlist.png" ]);
 }
 run().catch(core.setFailed);
