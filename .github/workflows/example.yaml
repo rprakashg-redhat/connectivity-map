@@ -1,0 +1,15 @@
+name: example
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: setup-roxctl
+        uses: rprakashg-redhat/setup-roxctl@main
+      - name: generate connectivity map
+        uses: ./
+        with:
+          manifests-dir: manifests
+        

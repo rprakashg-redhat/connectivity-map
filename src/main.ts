@@ -1,17 +1,17 @@
 import * as core from "@actions/core";
 import * as io from "@actions/io";
+import * as uuidV4 from "uuid/v4";
 import { Inputs } from "./generated/inputs-outputs";
 import { Command } from "./command";
 import { Installer } from "./graphvizInstaller";
 import { FindBinaryStatus } from "./helper";
-import * as uuidV4 from "uuid/v4";
 import { UploadArtifact } from "./uploadArtifact";
 
 export async function run(): Promise<void> {
     const runnerOS = process.env.RUNNER_OS || process.platform;
     const temp = process.env.RUNNER_TEMP;
 
-    const manifestDir = core.getInput(Inputs.MANIFESTS_DIR, { required: true } );
+    const manifestDir = core.getInput(Inputs.MANIFESTS_DIR, { required: true });
 
     let roxctl = await io.which("roxctl", false);
     if (roxctl === "") {
@@ -22,19 +22,19 @@ export async function run(): Promise<void> {
     const mapCmdArgs = [
         "netpol",
         "connectivity",
-        "map"
+        "map",
     ];
-    
-    //set manifests directory
+
+    // set manifests directory
     mapCmdArgs.push(manifestDir);
 
-    //output format
+    // output format
     mapCmdArgs.push("--output-format=dot");
 
-    //save to file
+    // save to file
     mapCmdArgs.push("--save-to-file=true");
 
-    //set output file
+    // set output file
     mapCmdArgs.push(`--output-file=${temp}/connlist.dot`);
 
     let result = await Command.execute(roxctl, mapCmdArgs);
@@ -53,9 +53,9 @@ export async function run(): Promise<void> {
         graphViz = binary.path;
     }
 
-    //convert dot file to png
+    // convert dot file to png
     const dotCmdArgs = [
-        "-Tpng"
+        "-Tpng",
     ];
 
     dotCmdArgs.push(`${temp}/connlist.dot > ${temp}/connlist.png`);
@@ -64,10 +64,8 @@ export async function run(): Promise<void> {
         core.setFailed(result.error);
     }
 
-    //upload both dot file and png file as artifacts
+    // upload both dot file and png file as artifacts
     const artifactName = uuidV4();
-    await UploadArtifact.upload(artifactName, [`${temp}/connlist.dot`, `${temp}/connlist.png`]);
-
+    await UploadArtifact.upload(artifactName, [ `${temp}/connlist.dot`, `${temp}/connlist.png` ]);
 }
-    
 run().catch(core.setFailed);
