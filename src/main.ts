@@ -1,6 +1,8 @@
 import * as core from "@actions/core";
 import * as io from "@actions/io";
 import * as uuidV4 from "uuid/v4";
+import * as fs from "mz/fs";
+
 import { Inputs } from "./generated/inputs-outputs";
 import { Command } from "./command";
 import { Installer } from "./graphvizInstaller";
@@ -42,7 +44,12 @@ export async function run(): Promise<void> {
     if (result.exitCode !== 0) {
         core.setFailed(result.error);
     }
-
+    if (await fs.exists(`${temp}/connlist.dot`)) {
+        core.debug("Dot file was created successfully");
+    }
+    else {
+        core.debug("Dot file was not created");
+    }
     let graphViz = await io.which("dot", false);
     if (graphViz === "") {
         core.debug("Graphviz not found, installing");
