@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: eventscheduler
+    service: eventscheduler
+  name: eventscheduler
+spec:
+  ports:
+  - name: http
+    port: 8080
+  selector:
+    app: eventscheduler
+    role: backend

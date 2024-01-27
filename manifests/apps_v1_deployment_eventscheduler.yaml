@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: eventscheduler
+    role: backend
+  name: eventscheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventscheduler
+      role: backend
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: eventscheduler
+        role: backend
+    spec:
+      containers:
+      - env:
+        - name: POSTGRESCLUSTER_USER
+          valueFrom:
+            secretKeyRef:
+              key: DBUSER
+              name: db-connection-properties
+              optional: false
+        - name: POSTGRESCLUSTER_USER_PWD
+          valueFrom:
+            secretKeyRef:
+              key: DBPASSWORD
+              name: db-connection-properties
+              optional: false
+        - name: HOST
+          valueFrom:
+            secretKeyRef:
+              key: DBHOST
+              name: db-connection-properties
+              optional: false
+        - name: DBNAME
+          valueFrom:
+            secretKeyRef:
+              key: DBNAME
+              name: db-connection-properties
+              optional: false
+        image: ghcr.io/rprakashg-redhat/rhacs-policy-management/backend@sha256:1db1e3870a7aa955a6934b49ed2b960e5b629be759e5a75d23aaaff597527d6e
+        imagePullPolicy: Always
+        name: eventscheduler
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 64Mi
+      imagePullSecrets:
+      - name: ghcr-creds

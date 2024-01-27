@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: graph
+    role: experience
+  name: graph
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: graph
+      role: experience
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: graph
+        role: experience
+    spec:
+      containers:
+      - env:
+        - name: SCHEDULER_SERVICE
+          value: eventscheduler
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: DATABASE_URL
+              name: mongodb-connection-properties
+              optional: false
+        image: ghcr.io/rprakashg-redhat/rhacs-policy-management/graph@sha256:9412460dbc076da5be5191ea14baadaeefaefc6dc8c9c2dc3eb2debb15b78606
+        imagePullPolicy: Always
+        name: graph
+        ports:
+        - containerPort: 4000
+          name: http
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 64Mi
+      imagePullSecrets:
+      - name: ghcr-creds

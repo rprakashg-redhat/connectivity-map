@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: graph
+    service: graph
+  name: graph
+spec:
+  ports:
+  - name: http
+    port: 4000
+  selector:
+    app: graph
+    role: experience
