@@ -1,7 +1,6 @@
 import * as core from "@actions/core";
 import * as io from "@actions/io";
 import { Command } from "./command";
-import * as fs from "mz/fs";
 import { FindBinaryStatus } from "./helper";
 
 export class Installer {
@@ -50,11 +49,9 @@ export class Installer {
                 reason: result.error,
             };
         }
-        const binary = await io.which("dot");
-        fs.chmodSync(binary, "755");
         return {
             found: true,
-            path: binary,
+            path: await io.which("dot"),
         };
     }
     static async chocoInstall(): Promise<FindBinaryStatus> {
