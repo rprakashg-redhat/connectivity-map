@@ -11,6 +11,7 @@ import { UploadArtifact } from "./uploadArtifact";
 export async function run(): Promise<void> {
     const runnerOS = process.env.RUNNER_OS || process.platform;
     const manifestDir = core.getInput(Inputs.MANIFESTS_DIR, { required: true });
+    const temp = process.env.RUNNER_TEMP;
 
     let roxctl = await io.which("roxctl", false);
     if (roxctl === "") {
@@ -35,7 +36,7 @@ export async function run(): Promise<void> {
 
     // set output file
     mapCmdArgs.push("--output-file");
-    mapCmdArgs.push("connlist.dot");
+    mapCmdArgs.push(`${temp}/connlist.dot`);
 
     let result = await Command.execute(roxctl, mapCmdArgs);
     if (result.exitCode !== 0) {
@@ -56,8 +57,9 @@ export async function run(): Promise<void> {
     // convert dot file to png
     const dotCmdArgs = [
         "-Tpng",
+        "-O",
     ];
-    dotCmdArgs.push("connlist.dot > connlist.png");
+    dotCmdArgs.push(`${temp}/connlist.dot`);
     result = await Command.execute(graphViz, dotCmdArgs);
     if (result.exitCode !== 0) {
         core.setFailed(result.error);
@@ -65,6 +67,6 @@ export async function run(): Promise<void> {
 
     // upload both dot file and png file as artifacts
     const artifactName = uuidV4();
-    await UploadArtifact.upload(artifactName, [ "connlist.dot", "connlist.png" ]);
+    await UploadArtifact.upload(artifactName, [ `${temp}/connlist.dot`, `${temp}/connlist.dot.png` ]);
 }
 run().catch(core.setFailed);
