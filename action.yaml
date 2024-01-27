@@ -1,0 +1,14 @@
+name: connectivity-map
+description: generate a connectivity map diagram for application
+author: 'Ram Gopinathan'
+branding:
+  icon: circle
+  color: red
+inputs:
+  manifests-dir:
+    description: directory where application manifests can be found
+    required: true
+  
+runs:
+  using: 'node20'
+  main: 'dist/index.js'  
