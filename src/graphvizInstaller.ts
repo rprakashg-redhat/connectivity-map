@@ -39,7 +39,7 @@ export class Installer {
     }
     static async getAptInstall(): Promise<FindBinaryStatus> {
         // run apt-get update first
-        await Command.execute("apt-get", [ "update" ]);
+        await Command.execute("sudo", [ "apt-get", "update" ]);
 
         const result = await Command.execute("sudo", [
             "apt-get", "install", "-y", "graphviz", "libgraphviz-dev", "pkg-config",
